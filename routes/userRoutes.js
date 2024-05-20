@@ -29,11 +29,11 @@ router.post('/signup', async (req, res) => {
         const newUser = new User(data);
         const response = await newUser.save();
         // console.log('Data saved');
-        const payload = {
-            id: response.id
-        }
-        const token = generateToken(payload);
-        res.status(200).json({ response: response, token: token });
+        // const payload = {
+        //     id: response.id
+        // }
+        // const token = generateToken(payload);
+        res.status(200).json({ response: response});
 
     } catch (error) {
         console.log(error);
