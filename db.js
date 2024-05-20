@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 require('dotenv').config();
 
-// Define the MongoDB connection URL
-const mongoURL = process.env.MONGODB_URL_LOCAL // Replace 'mydatabase' with your database name
-// const mongoURL = process.env.MONGODB_URL;
+// MongoDB connection URL local anfd online it will connect to local if online not available
+const mongoURL = process.env.MONGODB_URL_LOCAL || process.env.MONGODB_URL_ONLINE ;
 
+// Connect to the MongoDB database
 mongoose.connect(mongoURL,{
     useNewUrlParser:true,
     useUnifiedTopology:true

@@ -3,13 +3,32 @@ const router = express.Router();
 const User = require('../models/UserModel');
 const { jwtAuthMiddleware, generateToken } = require('../jwt');
 
-//signup rOUTE
+//signup ROUTE
 router.post('/signup', async (req, res) => {
     try {
         const data = req.body;
+
+        // Check if there is already an admin user
+        const adminUser = await User.findOne({ role: 'admin' });
+        if (data.role === 'admin' && adminUser) {
+            return res.status(400).json({ error: 'Admin user already exists' });
+        }
+
+        // Validate Aadhar Card Number must have exactly 12 digit
+        if (!/^\d{12}$/.test(data.aadhaar_number)) {
+            return res.status(400).json({ error: 'Aadhar Card Number must be exactly 12 digits' });
+        }
+
+        // Check if a user with the same Aadhar Card Number already exists
+        const existingUser = await User.findOne({ aadhaar_number: data.aadhaar_number });
+        if (existingUser) {
+            return res.status(400).json({ error: 'User with the same Aadhar Card Number already exists' });
+        }
+
+        // Create a new User document using the Mongoose model
         const newUser = new User(data);
         const response = await newUser.save();
-        console.log('Data saved');
+        // console.log('Data saved');
         const payload = {
             id: response.id
         }
