@@ -17,7 +17,7 @@ app.use('/user', uesrRoutes);
 app.use('/candidate', candidateRoutes);
 
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 5555;
 app.listen(PORT,function(){
 console.log(`Your server is running on port: http://localhost:${PORT}`);
 });
