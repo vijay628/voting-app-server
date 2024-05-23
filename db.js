@@ -3,10 +3,15 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 // MongoDB connection URL local anfd online it will connect to local if online not available
-const mongoURL = process.env.MONGODB_URL_LOCAL || process.env.MONGODB_URL_ONLINE ;
+// const mongoURL = process.env.MONGODB_URL_LOCAL || process.env.MONGODB_URL_ONLINE ;
+const MONGODB_USER = encodeURIComponent(process.env.MONGODB_USER);
+const MONGODB_PASSWORD = encodeURIComponent(process.env.MONGODB_PASSWORD);
+const CLUSTER_NAME = process.env.CLUSTER_NAME;
+
+const MONGODB_URI = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${CLUSTER_NAME}/?retryWrites=true&w=majority&appName=VotingApp`;
 
 // Connect to the MongoDB database
-mongoose.connect(mongoURL,{
+mongoose.connect(MONGODB_URI,{
     useNewUrlParser:true,
     useUnifiedTopology:true
 })
