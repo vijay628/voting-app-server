@@ -3,6 +3,29 @@ const router = express.Router();
 const User = require('../models/UserModel');
 const { jwtAuthMiddleware, generateToken } = require('../jwt');
 
+
+// validate email
+router.post('/api/validate', async (req, res) => {
+    const { email, mobile } = req.body;
+  
+    try {
+      const emailResponse = await axios.get(`https://emailvalidation.abstractapi.com/v1/?api_key=${process.env.REACT_APP_EMAIL_VALID_API_KEY}&email=${email}`);
+      const phoneResponse = await axios.get(`https://phonevalidation.abstractapi.com/v1/?api_key=${process.env.REACT_APP_MOBILE_VALID_API_KEY}&phone=${mobile}&country=IN`);
+  
+      const emailValid = emailResponse.data.deliverability === 'DELIVERABLE' && emailResponse.data.is_smtp_valid.value === true;
+      const phoneValid = phoneResponse.data.valid === true;
+  
+      if (emailValid && phoneValid) {
+        res.json({ valid: true });
+      } else {
+        res.json({ valid: false });
+      }
+    } catch (error) {
+      console.error('Error validating:', error);
+      res.status(500).json({ error: 'Failed to validate email and phone. Please try again later.' });
+    }
+  });
+  
 //signup ROUTE
 router.post('/signup', async (req, res) => {
     try {
