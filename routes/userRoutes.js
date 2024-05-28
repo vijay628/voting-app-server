@@ -2,21 +2,22 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/UserModel');
 const { jwtAuthMiddleware, generateToken } = require('../jwt');
+const { generateOtp, sendOtpEmail } = require('./otpService');
 const axios = require('axios');
 
 
 // validate email
 router.post('/api/validate', async (req, res) => {
-    const { email, mobile } = req.body;
+    const {mobile } = req.body;
   
     try {
-      const emailResponse = await axios.get(`https://emailvalidation.abstractapi.com/v1/?api_key=${process.env.REACT_APP_EMAIL_VALID_API_KEY}&email=${email}`);
+      // const emailResponse = await axios.get(`https://emailvalidation.abstractapi.com/v1/?api_key=${process.env.REACT_APP_EMAIL_VALID_API_KEY}&email=${email}`);
       const phoneResponse = await axios.get(`https://phonevalidation.abstractapi.com/v1/?api_key=${process.env.REACT_APP_MOBILE_VALID_API_KEY}&phone=${mobile}&country=IN`);
   
-      const emailValid = emailResponse.data.deliverability === 'DELIVERABLE' && emailResponse.data.is_smtp_valid.value === true;
+      // const emailValid = emailResponse.data.deliverability === 'DELIVERABLE' && emailResponse.data.is_smtp_valid.value === true;
       const phoneValid = phoneResponse.data.valid === true;
   
-      if (emailValid && phoneValid) {
+      if (phoneValid) {
         res.json({ valid: true });
       } else {
         res.json({ valid: false });
@@ -26,7 +27,60 @@ router.post('/api/validate', async (req, res) => {
       res.status(500).json({ error: 'Failed to validate email and phone. Please try again later.' });
     }
   });
+
+  // sent otp
+  router.post('/send-otp', async (req, res) => {
+    const { email } = req.body;
+    const otp = generateOtp();// Generate 6-digit OTP
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
   
+    try {
+      // Update user with the new OTP
+      const user = await User.findOneAndUpdate(
+        { email },
+        { otp: { code: otp, expiresAt } },
+        { new: true, upsert: true } // Create user if doesn't exist
+      );
+  
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+  
+      await sendOtpEmail(email, otp);
+  
+      res.send('OTP sent successfully');
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      res.status(500).send('Error sending OTP');
+    }
+  });
+  
+  // verify otp
+  router.post('/verify-otp', async (req, res) => {
+    const { email, otp } = req.body;
+  
+    try {
+      // Find user by email
+      const user = await User.findOne({ email });
+  
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+  
+      // Check if OTP is valid and not expired
+      if (user.otp.code === otp && user.otp.expiresAt > new Date()) {
+        user.isVerified = true;
+        await user.save();
+        res.send('OTP verified successfully');
+      } else {
+        res.status(400).send('Invalid or expired OTP');
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      res.status(500).send('Error verifying OTP');
+    }
+  });
+
 //signup ROUTE
 router.post('/signup', async (req, res) => {
     try {
