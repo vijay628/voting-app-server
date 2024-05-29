@@ -91,9 +91,6 @@ router.delete('/:candidateID', jwtAuthMiddleware, async (req, res) => {
 // Get current voting window
 router.get('/voting-window', jwtAuthMiddleware, async (req, res) => {
     
-    if (!await checkAdminRole(req.user.id)) {
-        return res.status(403).json({ message: 'User does not have admin role' });
-    }
     try {
         const votingWindow = await VotingWindow.findOne();
         if (!votingWindow) {
