@@ -5,29 +5,6 @@ const { jwtAuthMiddleware, generateToken } = require('../jwt');
 const { generateOtp, sendOtpEmail } = require('./otpService');
 const axios = require('axios');
 
-
-// validate email
-router.post('/api/validate', async (req, res) => {
-    const {mobile } = req.body;
-  
-    try {
-      // const emailResponse = await axios.get(`https://emailvalidation.abstractapi.com/v1/?api_key=${process.env.REACT_APP_EMAIL_VALID_API_KEY}&email=${email}`);
-      const phoneResponse = await axios.get(`https://phonevalidation.abstractapi.com/v1/?api_key=${process.env.REACT_APP_MOBILE_VALID_API_KEY}&phone=${mobile}&country=IN`);
-  
-      // const emailValid = emailResponse.data.deliverability === 'DELIVERABLE' && emailResponse.data.is_smtp_valid.value === true;
-      const phoneValid = phoneResponse.data.valid === true;
-  
-      if (phoneValid) {
-        res.json({ valid: true });
-      } else {
-        res.json({ valid: false });
-      }
-    } catch (error) {
-      console.error('Error validating:', error);
-      res.status(500).json({ error: 'Failed to validate email and phone. Please try again later.' });
-    }
-  });
-
   // sent otp
   router.post('/send-otp', async (req, res) => {
     const { email } = req.body;
@@ -38,8 +15,7 @@ router.post('/api/validate', async (req, res) => {
       // Update user with the new OTP
       const user = await User.findOneAndUpdate(
         { email },
-        { otp: { code: otp, expiresAt } },
-        { new: true, upsert: true } // Create user if doesn't exist
+        { otp: { code: otp, expiresAt } }
       );
   
       if (!user) {

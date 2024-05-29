@@ -9,7 +9,7 @@ const client = new MailtrapClient({ endpoint: ENDPOINT, token: TOKEN });
 
 const sender = {
   email: "mailtrap@demomailtrap.com",
-  name: "Mailtrap Test",
+  name: "Online Voting System",
 };
 
 const generateOtp = () => {
