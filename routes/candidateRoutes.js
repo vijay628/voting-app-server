@@ -3,6 +3,8 @@ const router = express.Router();
 const Candidate = require('../models/CandidateModel');
 const User = require('../models/UserModel');
 const { jwtAuthMiddleware} = require('../jwt');
+const {checkVotingWindow} = require('../middleware/checkVotingWindow');
+const VotingWindow = require('../models/VotingWindow');
 
 const checkAdminRole = async(userId)=>{
     try {
@@ -84,9 +86,68 @@ router.delete('/:candidateID', jwtAuthMiddleware, async (req, res) => {
     }
 })
 
+
+
+// Get current voting window
+router.get('/voting-window', jwtAuthMiddleware, async (req, res) => {
+    
+    if (!await checkAdminRole(req.user.id)) {
+        return res.status(403).json({ message: 'User does not have admin role' });
+    }
+    try {
+        const votingWindow = await VotingWindow.findOne();
+        if (!votingWindow) {
+            return res.status(404).json({ message: 'Voting window not set' });
+        }
+        res.status(200).json(votingWindow);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Set voting window
+router.post('/voting-window', jwtAuthMiddleware, async (req, res) => {
+    const { votingType, startDate, endDate } = req.body;
+
+    if (!await checkAdminRole(req.user.id)) {
+        return res.status(403).json({ message: 'User does not have admin role' });
+    }
+
+    try {
+        let votingWindow = await VotingWindow.findOne();
+        if (votingWindow) {
+            votingWindow.votingType = votingType;
+            votingWindow.startDate = new Date(startDate);
+            votingWindow.endDate = new Date(endDate);
+        } else {
+            votingWindow = new VotingWindow({ votingType, startDate: new Date(startDate), endDate: new Date(endDate) });
+        }
+        await votingWindow.save();
+        res.status(200).json({ message: 'Voting window set successfully', votingWindow });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.delete('/voting-window/:votingWindowId', jwtAuthMiddleware, async (req, res) => {
+    if (!await checkAdminRole(req.user.id)) {
+        return res.status(403).json({ message: 'User does not have admin role' });
+    }
+    try {
+        const votingWindowId = req.params.votingWindowId;
+        await VotingWindow.findByIdAndDelete(votingWindowId);
+        res.status(200).json({ message: 'Voting window deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 //let's start voting 
 
-router.post('/vote/:candidateID', jwtAuthMiddleware, async (req,res)=>{
+router.post('/vote/:candidateID', jwtAuthMiddleware,checkVotingWindow, async (req,res)=>{
     //no admin can vote
     // user can vote only
     const candidateID = req.params.candidateID;
