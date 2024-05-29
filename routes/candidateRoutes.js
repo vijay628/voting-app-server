@@ -89,7 +89,7 @@ router.delete('/:candidateID', jwtAuthMiddleware, async (req, res) => {
 
 
 // Get current voting window
-router.get('/voting-window', jwtAuthMiddleware, async (req, res) => {
+router.get('/voting-window', jwtAuthMiddleware,checkVotingWindow, async (req, res) => {
     
     try {
         const votingWindow = await VotingWindow.findOne();
