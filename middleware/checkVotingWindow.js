@@ -25,13 +25,13 @@ const checkVotingWindow = async (req, res, next) => {
         }
 
         const now = new Date();
-        const nowUTC = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) - 1000*60*60 ); // Convert current date to UTC
+        const nowUTC = new Date(now.getTime() - (now.getTimezoneOffset() * 60000) ); // Convert current date to UTC for server
         const startDate = new Date(votingWindow.startDate);
         const endDate = new Date(votingWindow.endDate);
 
         const startDateUTC = new Date(startDate.getTime() + (2*startDate.getTimezoneOffset() * 60000) - 1000*60*60);
         const endDateUTC = new Date(endDate.getTime() + (2*endDate.getTimezoneOffset() * 60000) - 1000*60*60);
-        console.log("Now:", now);
+        console.log("Now:", now, nowUTC);
         console.log("Start Date:", startDateUTC);
         console.log("End Date:", endDateUTC);
 
