@@ -23,7 +23,7 @@ const sendOtpEmail = (email, otp) => {
     from: sender,
     to: recipients,
     subject: "Your OTP Code",
-    text: `Your OTP code is ${otp}, Otp expires in 5min.`,
+    text: `Your OTP code is ${otp}, Otp expires in 10 min.`,
     category: "OTP Verification",
   });
 };
