@@ -7,7 +7,7 @@ const axios = require('axios');
 
   // sent otp
   router.post('/send-otp', async (req, res) => {
-    const { email, id } = req.body;
+    const {id, email } = req.body;
     const otp = generateOtp();// Generate 6-digit OTP
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 5 minutes
   
@@ -15,7 +15,9 @@ const axios = require('axios');
       // Update user with the new OTP
       const user = await User.findByIdAndUpdate(
          id ,
-        { otp: { code: otp, expiresAt } }
+        { otp: { code: otp, expiresAt } },{
+          new:true
+      }
       );
   
       if (!user) {
@@ -33,7 +35,7 @@ const axios = require('axios');
   
   // verify otp
   router.post('/verify-otp', async (req, res) => {
-    const { otp, id } = req.body;
+    const { id, otp } = req.body;
   
     try {
       // Find user by email
