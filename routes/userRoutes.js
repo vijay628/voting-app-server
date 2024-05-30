@@ -13,8 +13,8 @@ const axios = require('axios');
   
     try {
       // Update user with the new OTP
-      const user = await User.findOneAndUpdate(
-        { id },
+      const user = await User.findByIdAndUpdate(
+         id ,
         { otp: { code: otp, expiresAt } }
       );
   
@@ -37,7 +37,7 @@ const axios = require('axios');
   
     try {
       // Find user by email
-      const user = await User.findOne({ id });
+      const user = await User.findById(id);
   
       if (!user) {
         return res.status(404).send('User not found');
