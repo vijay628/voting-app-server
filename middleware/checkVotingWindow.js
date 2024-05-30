@@ -31,7 +31,7 @@ const checkVotingWindow = async (req, res, next) => {
 
         const startDateUTC = new Date(startDate.getTime() + (2*startDate.getTimezoneOffset() * 60000) - 1000*60*60);
         const endDateUTC = new Date(endDate.getTime() + (2*endDate.getTimezoneOffset() * 60000) - 1000*60*60);
-        console.log("Now:", nowUTC);
+        console.log("Now:", now);
         console.log("Start Date:", startDateUTC);
         console.log("End Date:", endDateUTC);
 
