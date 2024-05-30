@@ -29,6 +29,7 @@ const userSchema = mongoose.Schema({
         village: { type: String, required: true },
         post: { type: String, required: true },
         dist: { type: String, required: true },
+        state: { type: String, required: true },
         country: { type: String, required: true },
         pincode: { type: Number, required: true }
     },
@@ -45,7 +46,7 @@ const userSchema = mongoose.Schema({
         code: { type: String },
         expiresAt: { type: Date },
     },
-    isVerified:{
+    isVerified: {
         type: Boolean,
         default: false
     }
