@@ -9,10 +9,15 @@ const generateOtp = () => {
 const sendOtpEmail = async (email, otp) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: process.env.EMAIL_PASS, // Gmail App Password ONLY
+      },
+      tls: {
+        rejectUnauthorized: false, 
       },
     });
 
@@ -20,14 +25,14 @@ const sendOtpEmail = async (email, otp) => {
       from: `"Online Voting System" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Your OTP Code",
-      text: `Your OTP code is ${otp}, Otp expires in 10 min.`,
-      category: "OTP Verification",
+      text: `Your OTP code is ${otp}, OTP expires in 10 minutes.`,
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("📧 OTP sent successfully");
+    console.log("📧 OTP sent successfully to:", email);
+
   } catch (error) {
-    console.error("❌ Error sending email:", error.message);
+    console.error("❌ Error sending email:", error);
   }
 };
 
